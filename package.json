@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "minify": "terser src/flide.js -o flide.min.js && csso src/flide.css -o flide.min.css"
+  },
+  "dependencies": {
+    "csso-cli": "^4.0.2",
+    "terser": "^5.43.1"
+  }
+}
