@@ -8,7 +8,7 @@ function Flide(selector, options = {}) {
     this.opt = Object.assign({}, options);
 
     this.sliders = Array.from(this.container.children);
-
+    this.currentIndex = 0;
     this._init();
 }
 
@@ -43,5 +43,12 @@ Flide.prototype._createNavigation = function () {
 };
 
 Flide.prototype.moveSlide = function (step) {
-    console.log(step);
+    this.currentIndex = Math.min(
+        Math.max(this.currentIndex + step, 0),
+        this.sliders.length - 3
+    );
+
+    this.offset = -(this.currentIndex * (100 / 3));
+
+    this.track.style.transform = `translateX(${this.offset}%)`;
 };

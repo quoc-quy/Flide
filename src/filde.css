@@ -6,12 +6,13 @@
 
 .flide-wrapper {
     position: relative;
+    width: 100%;
+    overflow: hidden;
 }
 
 .flide-track {
     display: flex;
-    width: 100%;
-    overflow: hidden;
+    transition: transform .3s ease ;
 }
 
 .flide-slide {
@@ -29,6 +30,18 @@
 
 .flide-slide:nth-child(3) {
     background: #3940be;
+}
+
+.flide-slide:nth-child(4) {
+    background: #be398f;
+}
+
+.flide-slide:nth-child(5) {
+    background: #beb139;
+}
+
+.flide-slide:nth-child(6) {
+    background: #be6139;
 }
 
 .flide-prev, 
