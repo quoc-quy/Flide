@@ -12,7 +12,6 @@
 
 .flide-track {
     display: flex;
-    transition: transform .3s ease ;
 }
 
 .flide-slide {
@@ -20,27 +19,27 @@
     flex: 0 0 auto;
 }
 
-.flide-slide:nth-child(1) {
+.slide-1 {
     background: #be3939;
 }
 
-.flide-slide:nth-child(2) {
+.slide-2 {
     background: #39be4f;
 }
 
-.flide-slide:nth-child(3) {
+.slide-3 {
     background: #3940be;
 }
 
-.flide-slide:nth-child(4) {
+.slide-4 {
     background: #be398f;
 }
 
-.flide-slide:nth-child(5) {
+.slide-5 {
     background: #beb139;
 }
 
-.flide-slide:nth-child(6) {
+.slide-6 {
     background: #be6139;
 }
 

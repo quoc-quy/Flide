@@ -14,8 +14,9 @@ function Flide(selector, options = {}) {
     );
 
     this.sliders = Array.from(this.container.children);
-    this.currentIndex = 0;
+    this.currentIndex = this.opt.loop ? this.opt.items : 0;
     this._init();
+    this._updatePosition();
 }
 
 Flide.prototype._init = function () {
@@ -27,6 +28,16 @@ Flide.prototype._init = function () {
 Flide.prototype._createTrack = function () {
     this.track = document.createElement("div");
     this.track.classList.add("flide-track");
+
+    const cloneHead = this.sliders
+        .slice(-this.opt.items)
+        .map((node) => node.cloneNode(true));
+    const cloneTail = this.sliders
+        .slice(0, this.opt.items)
+        .map((node) => node.cloneNode(true));
+
+    this.sliders = cloneHead.concat(this.sliders.concat(cloneTail));
+
     this.sliders.map((slider) => {
         slider.classList.add("flide-slide");
         slider.style.flexBasis = `calc(100% / ${this.opt.items})`;
@@ -50,10 +61,23 @@ Flide.prototype._createNavigation = function () {
 };
 
 Flide.prototype.moveSlide = function (step) {
+    if (this._isAnimating) return;
+    this._isAnimating = true;
     if (this.opt.loop) {
         this.currentIndex =
             (this.currentIndex + step + this.sliders.length) %
             this.sliders.length;
+
+        this.track.ontransitionend = () => {
+            const maxIndex = this.sliders.length - this.opt.items;
+            if (this.currentIndex <= 0) {
+                this.currentIndex = maxIndex - this.opt.items;
+            } else if (this.currentIndex >= maxIndex) {
+                this.currentIndex = this.opt.items;
+            }
+            this._updatePosition(true);
+            this._isAnimating = false;
+        };
     } else {
         this.currentIndex = Math.min(
             Math.max(this.currentIndex + step, 0),
@@ -61,7 +85,11 @@ Flide.prototype.moveSlide = function (step) {
         );
     }
 
-    this.offset = -(this.currentIndex * (100 / this.opt.items));
+    this._updatePosition();
+};
 
+Flide.prototype._updatePosition = function (instant = false) {
+    this.track.style.transition = instant ? "none" : "transform .3s ease";
+    this.offset = -(this.currentIndex * (100 / this.opt.items));
     this.track.style.transform = `translateX(${this.offset}%)`;
 };
