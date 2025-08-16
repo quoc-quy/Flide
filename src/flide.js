@@ -5,7 +5,13 @@ function Flide(selector, options = {}) {
         return;
     }
 
-    this.opt = Object.assign({}, options);
+    this.opt = Object.assign(
+        {
+            items: 1,
+            loop: false,
+        },
+        options
+    );
 
     this.sliders = Array.from(this.container.children);
     this.currentIndex = 0;
@@ -23,6 +29,7 @@ Flide.prototype._createTrack = function () {
     this.track.classList.add("flide-track");
     this.sliders.map((slider) => {
         slider.classList.add("flide-slide");
+        slider.style.flexBasis = `calc(100% / ${this.opt.items})`;
         this.track.appendChild(slider);
     });
 };
@@ -43,12 +50,18 @@ Flide.prototype._createNavigation = function () {
 };
 
 Flide.prototype.moveSlide = function (step) {
-    this.currentIndex = Math.min(
-        Math.max(this.currentIndex + step, 0),
-        this.sliders.length - 3
-    );
+    if (this.opt.loop) {
+        this.currentIndex =
+            (this.currentIndex + step + this.sliders.length) %
+            this.sliders.length;
+    } else {
+        this.currentIndex = Math.min(
+            Math.max(this.currentIndex + step, 0),
+            this.sliders.length - this.opt.items
+        );
+    }
 
-    this.offset = -(this.currentIndex * (100 / 3));
+    this.offset = -(this.currentIndex * (100 / this.opt.items));
 
     this.track.style.transform = `translateX(${this.offset}%)`;
 };
