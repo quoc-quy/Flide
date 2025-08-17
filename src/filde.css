@@ -5,9 +5,12 @@
 }
 
 .flide-wrapper {
-    position: relative;
     width: 100%;
     overflow: hidden;
+}
+
+.flide-content {
+    position: relative;
 }
 
 .flide-track {
@@ -61,4 +64,25 @@
 
 .flide-next {
     right: 5px;
+}
+
+.flide-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 15px;
+}
+
+.flide-dot {
+    height: 8px;
+    width: 8px;
+    border-radius: 50%;
+    background: #bdbdbd;
+    border: none;
+    outline: none;
+}
+
+.flide-dot.active {
+    background: #333;
 }
