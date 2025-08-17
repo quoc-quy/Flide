@@ -16,12 +16,13 @@ function Flide(selector, options = {}) {
             prevButton: null,
             nextButton: null,
             slideBy: 1,
+            autoplay: false,
+            autoplayTimeout: 3000,
+            autoplayHoverPause: true,
         },
         options
     );
 
-    // this.sliders = Array.from(this.container.children);
-    // this.currentIndex = this.opt.loop ? this.opt.items : 0;
     this.originalSlides = Array.from(this.container.children);
     this.sliders = this.originalSlides.slice(0);
     this.currentIndex = this.opt.loop ? this._getCloneCount() : 0;
@@ -44,6 +45,29 @@ Flide.prototype._init = function () {
     if (this.opt.nav && showNav) {
         this._createNav();
     }
+
+    if (this.opt.autoplay) {
+        this._startAutoplay();
+
+        if (this.opt.autoplayHoverPause) {
+            this.container.onmouseenter = () => this._stopAutoplay();
+            this.container.onmouseleave = () => this._startAutoplay();
+        }
+    }
+};
+
+Flide.prototype._startAutoplay = function () {
+    if (this.autoplayTimer) return;
+
+    const slideBy = this._getSlideBy();
+    this.autoplayTimer = setInterval(() => {
+        this.moveSlide(slideBy);
+    }, this.opt.autoplayTimeout);
+};
+
+Flide.prototype._stopAutoplay = function () {
+    clearInterval(this.autoplayTimer);
+    this.autoplayTimer = null;
 };
 
 Flide.prototype._createContent = function () {
