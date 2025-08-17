@@ -11,6 +11,10 @@
     </head>
 
     <body>
+        <!-- <div class="my-controls">
+            <button class="flide-prev">Pre</button>
+            <button class="flide-next">Next</button>
+        </div> -->
         <div id="my-slider">
             <div class="slide-1">Slide 1</div>
             <div class="slide-2">Slide 2</div>
@@ -18,14 +22,18 @@
             <div class="slide-4">Slide 4</div>
             <div class="slide-5">Slide 5</div>
             <div class="slide-6">Slide 6</div>
+            <div class="slide-7">Slide 7</div>
         </div>
 
 
         <script src="./src/flide.js"></script>
         <script>
             const slider = new Flide('#my-slider', {
-                items: 1,
+                items: 3,
                 loop: true,
+                // prevButton: '.flide-prev',
+                // nextButton: '.flide-next',
+                slideBy: 3
             })
         </script>
     </body>

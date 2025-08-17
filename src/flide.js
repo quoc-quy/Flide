@@ -11,6 +11,11 @@ function Flide(selector, options = {}) {
             loop: false,
             speed: 300,
             nav: true,
+            controls: true,
+            controlsText: ["<", ">"],
+            prevButton: null,
+            nextButton: null,
+            slideBy: 1,
         },
         options
     );
@@ -25,7 +30,10 @@ Flide.prototype._init = function () {
     this.container.classList.add("flide-wrapper");
     this._createContent();
     this._createTrack();
-    this._createControl();
+
+    if (this.opt.controls) {
+        this._createControl();
+    }
 
     if (this.opt.nav) {
         this._createNav();
@@ -62,18 +70,29 @@ Flide.prototype._createTrack = function () {
 };
 
 Flide.prototype._createControl = function () {
-    this.btnPrev = document.createElement("button");
-    this.btnPrev.classList.add("flide-prev");
-    this.btnPrev.innerHTML = "<";
+    this.btnPrev = this.opt.prevButton
+        ? document.querySelector(this.opt.prevButton)
+        : document.createElement("button");
+    this.btnNext = this.opt.nextButton
+        ? document.querySelector(this.opt.nextButton)
+        : document.createElement("button");
 
-    this.btnNext = document.createElement("button");
-    this.btnNext.classList.add("flide-next");
-    this.btnNext.innerHTML = ">";
+    if (!this.opt.prevButton) {
+        this.btnPrev.innerHTML = this.opt.controlsText[0];
+        this.btnPrev.classList.add("flide-prev");
+        this.content.append(this.btnPrev);
+    }
 
-    this.content.append(this.track, this.btnPrev, this.btnNext);
+    if (!this.opt.nextButton) {
+        this.btnNext.innerHTML = this.opt.controlsText[1];
+        this.btnNext.classList.add("flide-next");
+        this.content.append(this.btnNext);
+    }
+    const stepSize =
+        this.opt.slideBy === "page" ? this.opt.items : this.opt.slideBy;
 
-    this.btnPrev.onclick = () => this.moveSlide(-1);
-    this.btnNext.onclick = () => this.moveSlide(1);
+    this.btnPrev.onclick = () => this.moveSlide(-stepSize);
+    this.btnNext.onclick = () => this.moveSlide(stepSize);
 };
 
 Flide.prototype.moveSlide = function (step) {
@@ -89,11 +108,11 @@ Flide.prototype.moveSlide = function (step) {
 
     setTimeout(() => {
         if (this.opt.loop) {
-            if (this.currentIndex <= 0) {
-                this.currentIndex = maxIndex - this.opt.items;
+            if (this.currentIndex < this.opt.items) {
+                this.currentIndex += this._getSlideCount();
                 this._updatePosition(true);
-            } else if (this.currentIndex >= maxIndex) {
-                this.currentIndex = this.opt.items;
+            } else if (this.currentIndex > this._getSlideCount()) {
+                this.currentIndex -= this._getSlideCount();
                 this._updatePosition(true);
             }
         }
@@ -103,13 +122,17 @@ Flide.prototype.moveSlide = function (step) {
     this._updatePosition();
 };
 
+Flide.prototype._getSlideCount = function () {
+    return this.opt.loop
+        ? this.sliders.length - this.opt.items * 2
+        : this.sliders.length;
+};
+
 Flide.prototype._createNav = function () {
     this.navWrapper = document.createElement("div");
     this.navWrapper.classList.add("flide-nav");
 
-    const slideCount = this.opt.loop
-        ? this.sliders.length - this.opt.items * 2
-        : this.sliders.length;
+    const slideCount = this._getSlideCount();
 
     const pageCount = Math.ceil(slideCount / this.opt.items);
 
