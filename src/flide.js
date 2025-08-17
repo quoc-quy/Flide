@@ -20,8 +20,12 @@ function Flide(selector, options = {}) {
         options
     );
 
-    this.sliders = Array.from(this.container.children);
-    this.currentIndex = this.opt.loop ? this.opt.items : 0;
+    // this.sliders = Array.from(this.container.children);
+    // this.currentIndex = this.opt.loop ? this.opt.items : 0;
+    this.originalSlides = Array.from(this.container.children);
+    this.sliders = this.originalSlides.slice(0);
+    this.currentIndex = this.opt.loop ? this._getCloneCount() : 0;
+
     this._init();
     this._updatePosition();
 }
@@ -31,11 +35,13 @@ Flide.prototype._init = function () {
     this._createContent();
     this._createTrack();
 
-    if (this.opt.controls) {
+    const showNav = this._getSlideCount() > this.opt.items;
+
+    if (this.opt.controls && showNav) {
         this._createControl();
     }
 
-    if (this.opt.nav) {
+    if (this.opt.nav && showNav) {
         this._createNav();
     }
 };
@@ -46,16 +52,28 @@ Flide.prototype._createContent = function () {
     this.container.appendChild(this.content);
 };
 
+Flide.prototype._getCloneCount = function () {
+    const slideCount = this._getSlideCount();
+
+    if (slideCount <= this.opt.items) return 0;
+
+    const slideBy = this._getSlideBy();
+    const cloneCount = slideBy + this.opt.items;
+
+    return cloneCount > slideCount ? slideCount : cloneCount;
+};
+
 Flide.prototype._createTrack = function () {
     this.track = document.createElement("div");
     this.track.classList.add("flide-track");
 
-    if (this.opt.loop) {
+    const cloneCount = this._getCloneCount();
+    if (this.opt.loop && cloneCount > 0) {
         const cloneHead = this.sliders
-            .slice(-this.opt.items)
+            .slice(-cloneCount)
             .map((node) => node.cloneNode(true));
         const cloneTail = this.sliders
-            .slice(0, this.opt.items)
+            .slice(0, cloneCount)
             .map((node) => node.cloneNode(true));
 
         this.sliders = cloneHead.concat(this.sliders.concat(cloneTail));
@@ -88,11 +106,10 @@ Flide.prototype._createControl = function () {
         this.btnNext.classList.add("flide-next");
         this.content.append(this.btnNext);
     }
-    const stepSize =
-        this.opt.slideBy === "page" ? this.opt.items : this.opt.slideBy;
+    const slideBy = this._getSlideBy();
 
-    this.btnPrev.onclick = () => this.moveSlide(-stepSize);
-    this.btnNext.onclick = () => this.moveSlide(stepSize);
+    this.btnPrev.onclick = () => this.moveSlide(-slideBy);
+    this.btnNext.onclick = () => this.moveSlide(slideBy);
 };
 
 Flide.prototype.moveSlide = function (step) {
@@ -108,7 +125,7 @@ Flide.prototype.moveSlide = function (step) {
 
     setTimeout(() => {
         if (this.opt.loop) {
-            if (this.currentIndex < this.opt.items) {
+            if (this.currentIndex < this._getCloneCount()) {
                 this.currentIndex += this._getSlideCount();
                 this._updatePosition(true);
             } else if (this.currentIndex > this._getSlideCount()) {
@@ -122,10 +139,12 @@ Flide.prototype.moveSlide = function (step) {
     this._updatePosition();
 };
 
+Flide.prototype._getSlideBy = function () {
+    return this.opt.slideBy === "page" ? this.opt.items : this.opt.slideBy;
+};
+
 Flide.prototype._getSlideCount = function () {
-    return this.opt.loop
-        ? this.sliders.length - this.opt.items * 2
-        : this.sliders.length;
+    return this.originalSlides.length;
 };
 
 Flide.prototype._createNav = function () {
@@ -144,7 +163,7 @@ Flide.prototype._createNav = function () {
 
         dot.onclick = () => {
             this.currentIndex = this.opt.loop
-                ? i * this.opt.items + this.opt.items
+                ? i * this.opt.items + this._getCloneCount()
                 : i * this.opt.items;
             this._updatePosition();
         };
@@ -156,12 +175,14 @@ Flide.prototype._createNav = function () {
 };
 
 Flide.prototype._updateNav = function () {
+    if (!this.navWrapper) return;
     let realIndex = this.currentIndex;
 
     if (this.opt.loop) {
-        const slideCount = this.sliders.length - this.opt.items * 2;
+        const slideCount = this._getSlideCount();
         realIndex =
-            (this.currentIndex - this.opt.items + slideCount) % slideCount;
+            (this.currentIndex - this._getCloneCount() + slideCount) %
+            slideCount;
     }
 
     const pageIndex = Math.floor(realIndex / this.opt.items);
